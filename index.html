@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CtgWay Pro - Ultra Smart Transit</title>
+    <title>CtgWay Pro - Offline Smart Transit</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -36,7 +36,6 @@
 
         .container { max-width: 600px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 10; }
 
-        /* --- Header Animation --- */
         header { padding: 50px 20px; text-align: center; animation: slideDown 0.8s ease-out; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -51,7 +50,6 @@
         }
         @keyframes shine { to { background-position: 200% center; } }
 
-        /* --- Floating Search Card --- */
         .search-card {
             background: var(--card);
             padding: 30px;
@@ -95,7 +93,6 @@
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
         }
-        .find-btn:active { transform: scale(0.98); }
 
         .swap-btn { 
             width: 55px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
@@ -103,7 +100,6 @@
         }
         .swap-btn:hover { background: rgba(255,255,255,0.15); transform: rotate(180deg); }
 
-        /* --- Bus Result Cards Animation --- */
         .bus-card {
             background: var(--card);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -128,15 +124,13 @@
         .stop.active { background: var(--secondary); box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); color: white; border: none; }
         .arrow { color: var(--accent); opacity: 0.5; font-weight: bold; }
 
-        /* --- Saved Chips --- */
         .chip { 
             background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2);
             padding: 10px 18px; border-radius: 50px; cursor: pointer; transition: 0.3s;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.5s ease; white-space: nowrap;
         }
         .chip:hover { background: var(--primary); transform: translateY(-2px); }
 
-        /* --- Particles Effect --- */
         .bg-glow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 1; overflow: hidden;
@@ -151,26 +145,26 @@
         }
 
         footer { text-align: center; margin-top: 60px; padding: 20px; opacity: 0.4; font-size: 0.8rem; }
-        .name-tag {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 14px;
-    color: #94a3b8;
-    z-index: 1000;
-}
+        .name-tag{
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                font-size: 1;
+                color: #94a3b8;
+                z-index: 1000;
+        }
+                
     </style>
 </head>
 <body>
-    
-<div class="name-tag">Made By Tahmin</div>
-    
+    <div class="name-tag">Made By Tahmin</div>
+
 <div class="bg-glow" id="particles"></div>
 
 <div class="container">
     <header>
         <h1>CtgWay Online</h1>
-        <p>চট্টগ্রামের স্মার্টতম বাস নেভিগেশন সিস্টেম</p>
+        <p>চট্টগ্রামের স্মার্টতম অফলাইন বাস গাইড</p>
     </header>
 
     <div class="search-card">
@@ -183,18 +177,35 @@
     </div>
 
     <div class="saved-section" id="saved-section" style="display: none; margin-bottom: 30px;">
-        <div style="font-size: 0.8rem; color: var(--accent); margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">আপনার প্রিয় রুট</div>
+        <div style="font-size: 0.8rem; color: var(--accent); margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">আপনার প্রিয় রুট</div>
         <div id="saved-chips" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div>
     </div>
 
     <div id="bus-list"></div>
 
-    <footer>&copy; 2026 CtgWay | Experience Smooth Navigation</footer>
+    <footer>&copy; 2026 CtgWay | Experience Smooth Navigation Offline</footer>
 </div>
 
 <datalist id="ctg-stops"></datalist>
 
 <script>
+    // --- PWA Service Worker (Internal Blob for Offline Support) ---
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            const cacheName = 'ctgway-v2';
+            const assets = ['./', './index.html'];
+            self.addEventListener('install', e => {
+                e.waitUntil(caches.open(cacheName).then(cache => cache.addAll(assets)));
+            });
+            self.addEventListener('fetch', e => {
+                e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+            });
+        `;
+        const blob = new Blob([swCode], { type: 'text/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).then(() => console.log("Offline Ready!"));
+    }
+
     // Particle Generator
     const particlesContainer = document.getElementById('particles');
     for (let i = 0; i < 15; i++) {
@@ -209,6 +220,7 @@
         particlesContainer.appendChild(p);
     }
 
+    // Bus Database
     const ctgBuses = [
         { id: "১ নম্বর", title: "নিউ মার্কেট ⇄ পতেঙ্গা", stops: ["নিউ মার্কেট", "কোতোয়ালী", "সদরঘাট", "কাস্টমস", "সল্টগোলা", "বন্দর", "পতেঙ্গা সী-বিচ"] },
         { id: "১ নম্বর (ফিরতি)", title: "পতেঙ্গা ⇄ নিউ মার্কেট", stops: ["পতেঙ্গা সী-বিচ", "বন্দর", "সল্টগোলা", "কাস্টমস", "মাঝিরঘাট", "সদরঘাট", "কোতোয়ালী", "নিউ মার্কেট"] },
@@ -249,10 +261,10 @@
     function searchBus() {
         const start = document.getElementById('startPos').value.trim();
         const end = document.getElementById('endPos').value.trim();
-        if(!start || !end) return alert("দয়া করে দুটি স্থানই পূরণ করুন।");
+        if(!start || !end) return;
 
         const list = document.getElementById('bus-list');
-        list.innerHTML = `<div style="text-align:center; padding: 20px; font-weight:600; color:var(--accent); animation: fadeIn 0.5s;">🔍 অনুসন্ধান করা হচ্ছে: ${start} → ${end}</div>`;
+        list.innerHTML = `<div style="text-align:center; padding: 20px; font-weight:600; color:var(--accent);">🔍 অনুসন্ধান করা হচ্ছে...</div>`;
 
         setTimeout(() => {
             list.innerHTML = "";
@@ -267,7 +279,7 @@
             } else {
                 findConnectingRoutes(start, end);
             }
-        }, 400);
+        }, 300);
     }
 
     function findConnectingRoutes(start, end) {
@@ -286,14 +298,14 @@
                 return jIdx !== -1 && eIdx !== -1 && jIdx < eIdx;
             });
             if(firstLeg.length > 0 && secondLeg.length > 0) {
-                list.innerHTML += `<div class="connect-badge" style="background:rgba(230,126,34,0.1); color:#fab1a0; padding:15px; border-radius:15px; margin-bottom:15px; text-align:center; border: 1px dashed #e67e22;">সরাসরি বাস নেই। <b>${junc}</b>-এ বাস পরিবর্তন করুন:</div>`;
+                list.innerHTML += `<div style="color:#fab1a0; padding:10px; text-align:center; font-size:0.9rem;">🔄 <b>${junc}</b>-এ বাস পরিবর্তন করুন:</div>`;
                 renderBusCard(firstLeg[0], start, junc, "১ম বাস", 0);
-                renderBusCard(secondLeg[0], junc, end, "২য় বাস", 1);
+                renderBusCard(secondLeg[0], junc, end, "২য় বাস", 1);
                 found = true;
                 break;
             }
         }
-        if(!found) list.innerHTML = `<div class="no-data" style="text-align:center; padding:50px; opacity:0.6;">😔 দুঃখিত! কোনো সরাসরি বা কানেক্টিং রুট পাওয়া যায়নি।</div>`;
+        if(!found) list.innerHTML = `<div style="text-align:center; padding:50px; opacity:0.6;">😔 কোনো রুট পাওয়া যায়নি।</div>`;
     }
 
     function renderBusCard(bus, start, end, label = "", index = 0) {
@@ -313,7 +325,7 @@
                     ${label ? `<span style="color:var(--accent); font-size:0.8rem;">${label}:</span>` : ''} 
                     ${bus.title} <span class="badge">${bus.id}</span>
                 </div>
-                <button onclick="toggleFav('${start}', '${end}')" style="background:none; border:none; cursor:pointer; font-size:1.3rem; transition:0.3s;">${isFav?'❤️':'🤍'}</button>
+                <button onclick="toggleFav('${start}', '${end}')" style="background:none; border:none; cursor:pointer;">${isFav?'❤️':'🤍'}</button>
             </div>
             <div class="stops-flow">${stopsHtml}</div>
         `;
