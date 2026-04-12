@@ -1,0 +1,345 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CtgWay Pro - Ultra Smart Transit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --card: rgba(30, 41, 59, 0.4); 
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --text-white: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #22d3ee;
+            --blur: 20px; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-white);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                linear-gradient(to bottom, rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.9)),
+                url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 10; }
+
+        /* --- Header Animation --- */
+        header { padding: 50px 20px; text-align: center; animation: slideDown 0.8s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+        header h1 { 
+            font-size: clamp(2.2rem, 10vw, 3rem); 
+            background: linear-gradient(135deg, #818cf8, #c084fc, #22d3ee); 
+            background-size: 200% auto;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            font-weight: 800;
+            animation: shine 4s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* --- Floating Search Card --- */
+        .search-card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 28px;
+            backdrop-filter: blur(var(--blur));
+            -webkit-backdrop-filter: blur(var(--blur));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 35px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float { 
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        input {
+            width: 100%; padding: 16px; 
+            background: rgba(15, 23, 42, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 15px;
+            color: white; margin-bottom: 15px; font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        input:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+            transform: scale(1.01);
+        }
+
+        .btn-flex { display: flex; gap: 12px; }
+        .find-btn { 
+            flex: 1; padding: 16px; border-radius: 15px; border: none; 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: white; font-weight: 700; cursor: pointer; 
+            transition: 0.4s; position: relative; overflow: hidden;
+        }
+        .find-btn:hover { 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+        .find-btn:active { transform: scale(0.98); }
+
+        .swap-btn { 
+            width: 55px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 15px; color: white; cursor: pointer; font-size: 1.4rem; transition: 0.3s;
+        }
+        .swap-btn:hover { background: rgba(255,255,255,0.15); transform: rotate(180deg); }
+
+        /* --- Bus Result Cards Animation --- */
+        .bus-card {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px; border-radius: 22px; margin-bottom: 18px;
+            backdrop-filter: blur(var(--blur));
+            animation: cardEntrance 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+        }
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .bus-title { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .badge { background: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; }
+
+        .stops-flow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+        .stop { 
+            font-size: 0.85rem; padding: 5px 12px; border-radius: 10px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
+        }
+        .stop.active { background: var(--secondary); box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); color: white; border: none; }
+        .arrow { color: var(--accent); opacity: 0.5; font-weight: bold; }
+
+        /* --- Saved Chips --- */
+        .chip { 
+            background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 10px 18px; border-radius: 50px; cursor: pointer; transition: 0.3s;
+            animation: fadeIn 0.5s ease;
+        }
+        .chip:hover { background: var(--primary); transform: translateY(-2px); }
+
+        /* --- Particles Effect --- */
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; overflow: hidden;
+        }
+        .particle {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0.1; animation: move 20s linear infinite;
+        }
+        @keyframes move {
+            from { transform: translateY(100vh) translateX(0); }
+            to { transform: translateY(-10vh) translateX(50px); }
+        }
+
+        footer { text-align: center; margin-top: 60px; padding: 20px; opacity: 0.4; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow" id="particles"></div>
+
+<div class="container">
+    <header>
+        <h1>CtgWay Online</h1>
+        <p>চট্টগ্রামের স্মার্টতম বাস নেভিগেশন সিস্টেম</p>
+    </header>
+
+    <div class="search-card">
+        <input type="text" id="startPos" placeholder="📍 আপনার বর্তমান অবস্থান" list="ctg-stops">
+        <input type="text" id="endPos" placeholder="🏁 গন্তব্যস্থল" list="ctg-stops">
+        <div class="btn-flex">
+            <button class="swap-btn" onclick="swap()">⇅</button>
+            <button class="find-btn" onclick="searchBus()">সেরা রুট খুঁজুন ✨</button>
+        </div>
+    </div>
+
+    <div class="saved-section" id="saved-section" style="display: none; margin-bottom: 30px;">
+        <div style="font-size: 0.8rem; color: var(--accent); margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">আপনার প্রিয় রুট</div>
+        <div id="saved-chips" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;"></div>
+    </div>
+
+    <div id="bus-list"></div>
+
+    <footer>&copy; 2026 CtgWay | Experience Smooth Navigation</footer>
+</div>
+
+<datalist id="ctg-stops"></datalist>
+
+<script>
+    // Particle Generator
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 15; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 4 + 2 + 'px';
+        p.style.width = size;
+        p.style.height = size;
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = Math.random() * 10 + 10 + 's';
+        p.style.animationDelay = Math.random() * 5 + 's';
+        particlesContainer.appendChild(p);
+    }
+
+    const ctgBuses = [
+        { id: "১ নম্বর", title: "নিউ মার্কেট ⇄ পতেঙ্গা", stops: ["নিউ মার্কেট", "কোতোয়ালী", "সদরঘাট", "কাস্টমস", "সল্টগোলা", "বন্দর", "পতেঙ্গা সী-বিচ"] },
+        { id: "১ নম্বর (ফিরতি)", title: "পতেঙ্গা ⇄ নিউ মার্কেট", stops: ["পতেঙ্গা সী-বিচ", "বন্দর", "সল্টগোলা", "কাস্টমস", "মাঝিরঘাট", "সদরঘাট", "কোতোয়ালী", "নিউ মার্কেট"] },
+        { id: "২ নম্বর", title: "কালুরঘাট ⇄ নিউ মার্কেট", stops: ["কালুরঘাট", "বহদ্দারহাট", "মুরাদপুর", "২ নম্বর গেট", "জিইসি", "লালখান বাজার", "টাইগারপাস", "কদমতলী", "নিউ মার্কেট"] },
+        { id: "২ নম্বর (ফিরতি)", title: "নিউ মার্কেট ⇄ কালুরঘাট", stops: ["নিউ মার্কেট", "কদমতলী", "টাইগারপাস", "লালখান বাজার", "জিইসি", "২ নম্বর গেট", "মুরাদপুর", "বহদ্দারহাট", "কালুরঘাট"] },
+        { id: "৩ নম্বর", title: "নিউ মার্কেট ⇄ ফতেয়াবাদ", stops: ["নিউ মার্কেট", "চকবাজার", "পাঁচলাইশ", "বহদ্দারহাট", "অক্সিজেন", "ফতেয়াবাদ"] },
+        { id: "৩ নম্বর (ফিরতি)", title: "ফতেয়াবাদ ⇄ নিউ মার্কেট", stops: ["ফতেয়াবাদ", "অক্সিজেন", "বহদ্দারহাট", "পাঁচলাইশ (মেডিকেল)", "চকবাজার", "আন্দরকিল্লা", "নিউ মার্কেট"] },
+        { id: "৪ নম্বর", title: "কালুরঘাট ⇄ নিউ মার্কেট", stops: ["কালুরঘাট", "চান্দগাঁও থানা", "বহদ্দারহাট", "মুরাদপুর", "২ নম্বর গেট", "জিইসি", "লালখান বাজার", "টাইগারপাস", "কদমতলী", "নিউ মার্কেট"] },
+        { id: "৪ নম্বর (ফিরতি)", title: "নিউ মার্কেট ⇄ কালুরঘাট", stops: ["নিউ মার্কেট", "কদমতলী", "টাইগারপাস", "লালখান বাজার", "জিইসি", "২ নম্বর গেট", "মুরাদপুর", "বহদ্দারহাট", "চান্দগাঁও থানা", "কালুরঘাট"] },
+        { id: "৬ নম্বর", title: "কালুরঘাট ⇄ পতেঙ্গা", stops: ["কালুরঘাট", "বহদ্দারহাট", "জিইসি", "আগ্রাবাদ", "বারিকে বিল্ডিং", "বন্দর", "পতেঙ্গা সী-বিচ"] },
+        { id: "৬ নম্বর (ফিরতি)", title: "পতেঙ্গা ⇄ কালুরঘাট", stops: ["পতেঙ্গা সী-বিচ", "ইপিজেড", "বন্দর", "আগ্রাবাদ", "টাইগারপাস", "জিইসি", "মুরাদপুর", "বহদ্দারহাট", "কালুরঘাট"] },
+        { id: "৭ নম্বর", title: "কোতোয়ালী ⇄ হাটহাজারী", stops: ["কোতোয়ালী", "চকবাজার", "মুরাদপুর", "অক্সিজেন", "হাটহাজারী"] },
+        { id: "৭ নম্বর (ফিরতি)", title: "হাটহাজারী ⇄ কোতোয়ালী", stops: ["হাটহাজারী", "অক্সিজেন", "মুরাদপুর", "চকবাজার", "আন্দরকিল্লা", "কোতোয়ালী"] },
+        { id: "৮ নম্বর", title: "নিউ মার্কেট ⇄ ভাটিয়ারী", stops: ["নিউ মার্কেট", "কদমতলী", "টাইগারপাস", "দেওয়ানহাট", "আগ্রাবাদ", "অলঙ্কার", "এ কে খান", "ভাটিয়ারী"] },
+        { id: "৮ নম্বর (ফিরতি)", title: "ভাটিয়ারী ⇄ নিউ মার্কেট", stops: ["ভাটিয়ারী", "এ কে খান", "অলঙ্কার মোড়", "সরণিকা", "আগ্রাবাদ", "দেওয়ানহাট", "টাইগারপাস", "কদমতলী", "নিউ মার্কেট"] },
+        { id: "১০ নম্বর", title: "কালুরঘাট ⇄ পতেঙ্গা", stops: ["কালুরঘাট", "বহদ্দারহাট", "মুরাদপুর", "জিইসি", "লালখান বাজার", "টাইগারপাস", "আগ্রাবাদ", "কাস্টমস", "ইপিজেড", "পতেঙ্গা"] },
+        { id: "১০ নম্বর (ফিরতি)", title: "পতেঙ্গা ⇄ কালুরঘাট", stops: ["পতেঙ্গা", "ইপিজেড", "কাস্টমস", "আগ্রাবাদ", "টাইগারপাস", "লালখান বাজার", "জিইসি", "মুরাদপুর", "বহদ্দারহাট", "কালুরঘাট"] }
+    ];
+
+    const junctions = ["জিইসি", "টাইগারপাস", "বহদ্দারহাট", "মুরাদপুর", "নিউ মার্কেট", "আগ্রাবাদ", "চকবাজার", "২ নম্বর গেট"];
+    let savedRoutes = JSON.parse(localStorage.getItem('ctgFavs')) || [];
+
+    function init() {
+        const stopsSet = new Set();
+        ctgBuses.forEach(bus => bus.stops.forEach(s => stopsSet.add(s)));
+        const dl = document.getElementById('ctg-stops');
+        stopsSet.forEach(s => { const o = document.createElement('option'); o.value = s; dl.appendChild(o); });
+        updateSavedUI();
+    }
+
+    function swap() {
+        let s = document.getElementById('startPos'), e = document.getElementById('endPos');
+        let temp = s.value;
+        s.value = e.value;
+        e.value = temp;
+    }
+
+    function searchBus() {
+        const start = document.getElementById('startPos').value.trim();
+        const end = document.getElementById('endPos').value.trim();
+        if(!start || !end) return alert("দয়া করে দুটি স্থানই পূরণ করুন।");
+
+        const list = document.getElementById('bus-list');
+        list.innerHTML = `<div style="text-align:center; padding: 20px; font-weight:600; color:var(--accent); animation: fadeIn 0.5s;">🔍 অনুসন্ধান করা হচ্ছে: ${start} → ${end}</div>`;
+
+        setTimeout(() => {
+            list.innerHTML = "";
+            let direct = ctgBuses.filter(b => {
+                const sIdx = b.stops.indexOf(start);
+                const eIdx = b.stops.indexOf(end);
+                return sIdx !== -1 && eIdx !== -1 && sIdx < eIdx;
+            });
+            
+            if(direct.length > 0) {
+                direct.forEach((b, index) => renderBusCard(b, start, end, "", index));
+            } else {
+                findConnectingRoutes(start, end);
+            }
+        }, 400);
+    }
+
+    function findConnectingRoutes(start, end) {
+        const list = document.getElementById('bus-list');
+        let found = false;
+        for (let junc of junctions) {
+            if (junc === start || junc === end) continue;
+            let firstLeg = ctgBuses.filter(b => {
+                const sIdx = b.stops.indexOf(start);
+                const jIdx = b.stops.indexOf(junc);
+                return sIdx !== -1 && jIdx !== -1 && sIdx < jIdx;
+            });
+            let secondLeg = ctgBuses.filter(b => {
+                const jIdx = b.stops.indexOf(junc);
+                const eIdx = b.stops.indexOf(end);
+                return jIdx !== -1 && eIdx !== -1 && jIdx < eIdx;
+            });
+            if(firstLeg.length > 0 && secondLeg.length > 0) {
+                list.innerHTML += `<div class="connect-badge" style="background:rgba(230,126,34,0.1); color:#fab1a0; padding:15px; border-radius:15px; margin-bottom:15px; text-align:center; border: 1px dashed #e67e22;">সরাসরি বাস নেই। <b>${junc}</b>-এ বাস পরিবর্তন করুন:</div>`;
+                renderBusCard(firstLeg[0], start, junc, "১ম বাস", 0);
+                renderBusCard(secondLeg[0], junc, end, "২য় বাস", 1);
+                found = true;
+                break;
+            }
+        }
+        if(!found) list.innerHTML = `<div class="no-data" style="text-align:center; padding:50px; opacity:0.6;">😔 দুঃখিত! কোনো সরাসরি বা কানেক্টিং রুট পাওয়া যায়নি।</div>`;
+    }
+
+    function renderBusCard(bus, start, end, label = "", index = 0) {
+        const isFav = savedRoutes.some(r => r.start === start && r.end === end);
+        const card = document.createElement('div');
+        card.className = 'bus-card';
+        card.style.animationDelay = (index * 0.1) + 's';
+        
+        let stopsHtml = bus.stops.map(s => {
+            const isActive = (s === start || s === end);
+            return `<span class="stop ${isActive?'active':''}">${s}</span>`;
+        }).join('<span class="arrow">→</span>');
+
+        card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="bus-title">
+                    ${label ? `<span style="color:var(--accent); font-size:0.8rem;">${label}:</span>` : ''} 
+                    ${bus.title} <span class="badge">${bus.id}</span>
+                </div>
+                <button onclick="toggleFav('${start}', '${end}')" style="background:none; border:none; cursor:pointer; font-size:1.3rem; transition:0.3s;">${isFav?'❤️':'🤍'}</button>
+            </div>
+            <div class="stops-flow">${stopsHtml}</div>
+        `;
+        document.getElementById('bus-list').appendChild(card);
+    }
+
+    function toggleFav(s, e) {
+        const index = savedRoutes.findIndex(r => r.start === s && r.end === e);
+        if(index > -1) savedRoutes.splice(index, 1);
+        else savedRoutes.push({start: s, end: e});
+        localStorage.setItem('ctgFavs', JSON.stringify(savedRoutes));
+        updateSavedUI();
+        searchBus();
+    }
+
+    function updateSavedUI() {
+        const sec = document.getElementById('saved-section');
+        const container = document.getElementById('saved-chips');
+        if(savedRoutes.length === 0) { sec.style.display = 'none'; return; }
+        sec.style.display = 'block';
+        container.innerHTML = "";
+        savedRoutes.forEach(r => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.innerText = `${r.start} ⇄ ${r.end}`;
+            chip.onclick = () => {
+                document.getElementById('startPos').value = r.start;
+                document.getElementById('endPos').value = r.end;
+                searchBus();
+            };
+            container.appendChild(chip);
+        });
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
